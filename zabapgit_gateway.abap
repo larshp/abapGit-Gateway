@@ -1,4 +1,197 @@
 
+INTERFACE lif_object_iwpr_handler.
+
+  METHODS:
+    serialize
+      IMPORTING io_xml  TYPE REF TO lcl_xml
+                ii_node TYPE REF TO /iwbep/if_sbdm_node
+      RAISING   /iwbep/cx_sbcm_exception.
+
+ENDINTERFACE.
+
+CLASS lcl_object_iwpr_prop DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_prop IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* class /IWBEP/CL_SBOD_PROPERTY_PS
+* table /IWBEP/I_SBO_PR
+
+    DATA: ls_data TYPE /iwbep/i_sbo_pr,
+          li_prop TYPE REF TO /iwbep/if_sbod_property.
+
+
+    li_prop ?= ii_node.
+
+    ls_data-node_uuid = ii_node->mv_node_guid.
+    ls_data-parent_uuid = li_prop->/iwbep/if_sbdm_node~get_parent( )->mv_node_guid.
+    ls_data-name = ii_node->get_name( ).
+    ls_data-is_key = li_prop->is_key( ).
+    ls_data-as_author = li_prop->get_as_author( ).
+    ls_data-as_etag = li_prop->get_as_etag( ).
+    ls_data-as_published = li_prop->get_as_published( ).
+    ls_data-as_title = li_prop->get_as_title( ).
+    ls_data-as_updated = li_prop->get_as_updated( ).
+    ls_data-creatable = li_prop->get_creatable( ).
+    ls_data-filterable = li_prop->get_filterable( ).
+    ls_data-fixed_length = li_prop->get_fixedlength( ).
+    ls_data-max_length = li_prop->get_maxlength( ).
+    ls_data-prop_precision = li_prop->get_precision( ).
+    ls_data-requires_filter = li_prop->get_requiresfilter( ).
+    ls_data-scale = li_prop->get_scale( ).
+    ls_data-semantics = li_prop->get_semantics( ).
+    ls_data-sortable = li_prop->get_sortable( ).
+*  ls_data-edm_core_type = li_prop->mv_edm_core_type.
+*  ls_data-complex_type = li_prop->ms_complex_type_guid-node_uuid.
+*
+*  ls_data-node_uuid_ty = li_prop->ms_type-node_uuid.
+*  ls_data-plugin_ty = li_prop->ms_type-type-plugin.
+*  ls_data-node_type_ty = li_prop->ms_type-type-node_type.
+
+    ls_data-updatable = li_prop->get_updatable( ).
+    ls_data-deletable = li_prop->get_deletable( ).
+    ls_data-is_nullable = li_prop->is_nullable( ).
+    ls_data-is_unicode = li_prop->is_unicode( ).
+    ls_data-is_collection = li_prop->is_collection( ).
+*  ls_data-unit_prop = li_prop->ms_unit_prop_guid-node_uuid.
+*  ls_data-fc_target_path = li_prop->mv_fc_target_path.
+*  IF li_prop->mo_label IS BOUND.
+*    ls_data-txtr = li_prop->mo_label->ms_lbl_txt_ref.
+*  ENDIF.
+    ls_data-abap_field = li_prop->get_abap_field( ).
+    ls_data-abty = /iwbep/cl_sbod_util=>calculate_abap_type( li_prop->get_abap_type( ) ).
+*  ls_data-proref = li_prop->ms_prototype.
+*  ls_data-sort_order = li_prop->mv_sort_order.
+
+**handling of undefined flag
+*  ls_data-name_xu  = li_prop->ms_undefined_attr-name.
+*  ls_data-is_key_xu  = li_prop->ms_undefined_attr-is_key.
+    ls_data-as_author_xu = li_prop->is_as_author_undefined( ).
+    ls_data-as_etag_xu = li_prop->is_as_etag_undefined( ).
+    ls_data-as_published_xu = li_prop->is_as_published_undefined( ).
+    ls_data-as_title_xu = li_prop->is_as_title_undefined( ).
+    ls_data-as_updated_xu = li_prop->is_as_updated_undefined( ).
+    ls_data-creatable_xu = li_prop->is_creatable_undefined( ).
+    ls_data-filterable_xu = li_prop->is_filterable_undefined( ).
+    ls_data-fixed_length_xu = li_prop->is_fixedlength_undefined( ).
+    ls_data-max_length_xu = li_prop->is_maxlength_undefined( ).
+    ls_data-propprecision_xu = li_prop->is_precision_undefined( ).
+    ls_data-requirefilter_xu = li_prop->is_requiresfilter_undefined( ).
+    ls_data-scale_xu = li_prop->is_scale_undefined( ).
+    ls_data-semantics_xu = li_prop->is_semantics_undefined( ).
+    ls_data-sortable_xu = li_prop->is_sortable_undefined( ).
+    ls_data-type_xu = li_prop->is_type_undefined( ).
+
+    ls_data-updatable_xu = li_prop->is_updatable_undefined( ).
+    ls_data-is_nullable_xu = li_prop->is_nullable_undefined( ).
+    ls_data-is_unicode_xu = li_prop->is_unicode_undefined( ).
+    ls_data-unit_prop_xu = li_prop->is_unit_undefined( ).
+    ls_data-fctargetpath_xu  = li_prop->is_fc_target_path_undefined( ).
+    ls_data-abap_field_xu  = li_prop->is_abap_field_undefined( ).
+    ls_data-deletable_xu  = li_prop->is_deletable_undefined( ).
+*  ls_data-abty_xu  = li_prop->ms_undefined_attr-abty.
+*  ls_data-txtr_xu  = li_prop->ms_undefined_attr-txtr.
+
+*  ls_data-description_xu  = li_prop->ms_undefined_attr-description.
+*  ls_data-prop_label_xu  = li_prop->ms_undefined_attr-prop_label.
+
+*  WRITE: / li_prop->get_maxlength( ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_gena DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_gena IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* todo
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_etyp DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_etyp IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* todo
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_serv DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_serv IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* todo
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_srmt DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_srmt IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* todo
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_modl DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_modl IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* todo
+
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lcl_object_iwpr DEFINITION INHERITING FROM lcl_objects_super FINAL.
 
   PUBLIC SECTION.
@@ -11,8 +204,8 @@ CLASS lcl_object_iwpr DEFINITION INHERITING FROM lcl_objects_super FINAL.
         RAISING   lcx_not_found
                   /iwbep/cx_sbcm_exception,
       walk
-        IMPORTING it_nodes TYPE /iwbep/t_sbdm_nodes
-                  iv_level TYPE i
+        IMPORTING io_xml   TYPE REF TO lcl_xml
+                  it_nodes TYPE /iwbep/t_sbdm_nodes
         RAISING   /iwbep/cx_sbcm_exception.
 
 ENDCLASS.
@@ -21,28 +214,26 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
 
   METHOD walk.
 
-    DATA: li_prop TYPE REF TO /iwbep/if_sbod_property.
+    DATA: lv_class   TYPE string,
+          li_handler TYPE REF TO lif_object_iwpr_handler.
 
 
     LOOP AT it_nodes ASSIGNING FIELD-SYMBOL(<li_node>).
-      DO iv_level TIMES.
-        WRITE space.
-      ENDDO.
-      WRITE: <li_node>->get_name( ), <li_node>->ms_node_type-node_type.
 
-      IF <li_node>->ms_node_type-node_type = 'PROP'.
-        li_prop ?= <li_node>.
-        WRITE: / li_prop->get_maxlength( ).
-      ENDIF.
+      CONCATENATE 'LCL_OBJECT_IWPR_' <li_node>->ms_node_type-node_type INTO lv_class.
+      TRY.
+          CREATE OBJECT li_handler TYPE (lv_class).
+        CATCH cx_sy_create_object_error.
+          BREAK-POINT.
+      ENDTRY.
 
-* class /IWBEP/CL_SBOD_PROPERTY_PS
-* table /IWBEP/I_SBO_PR
-      WRITE /.
+      li_handler->serialize(
+        io_xml  = io_xml
+        ii_node = <li_node> ).
 
       DATA(lt_nodes) = <li_node>->get_children( ).
-      DATA(lv_level) = iv_level + 1.
-      walk( it_nodes = lt_nodes
-               iv_level = lv_level ).
+      walk( io_xml   = io_xml
+            it_nodes = lt_nodes ).
     ENDLOOP.
 
   ENDMETHOD.
@@ -72,10 +263,17 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
 
   METHOD lif_object~serialize.
 
+    DATA: lo_xml TYPE REF TO lcl_xml.
+
+
     TRY.
         DATA(lt_nodes) = find_project( )->get_children( ).
-        walk( it_nodes = lt_nodes
-              iv_level = 0 ).
+* todo, project top level data?
+
+        CREATE OBJECT lo_xml.
+        walk( io_xml   = lo_xml
+              it_nodes = lt_nodes ).
+        mo_files->add_xml( lo_xml ).
       CATCH lcx_not_found.
         BREAK-POINT.
       CATCH /iwbep/cx_sbcm_exception.
