@@ -5,4 +5,6 @@ Initially this repository will be used for developing support for object type IW
 
 For testing purposes it can be installed alongside abapGit in a separate include.
 
-Whenever(if) it becomes stable the code will be moved to to the abapGit repository. However abapGit version requirement is 702, so everything will have to be changed into dynamic references.
+Whenever(if) it becomes stable the code will be moved to to the abapGit repository. 
+
+The gateway module is not installed in all systems, so everything will have to be changed into dynamic references.
