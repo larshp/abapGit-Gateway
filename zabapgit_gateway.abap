@@ -1,13 +1,57 @@
-
 INTERFACE lif_object_iwpr_handler.
 
   METHODS:
     serialize
-      IMPORTING io_xml  TYPE REF TO lcl_xml
-                ii_node TYPE REF TO /iwbep/if_sbdm_node
+      IMPORTING ii_node TYPE REF TO /iwbep/if_sbdm_node
       RAISING   /iwbep/cx_sbcm_exception.
 
 ENDINTERFACE.
+
+CLASS lcl_object_iwpr_collection DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    CLASS-METHODS:
+* todo, method signature should be generic?
+      add_prop
+        IMPORTING is_data TYPE /iwbep/i_sbo_pr,
+      add_gena
+        IMPORTING is_data TYPE /iwbep/i_sbd_ga,
+      clear,
+      finalize
+        IMPORTING io_xml TYPE REF TO lcl_xml
+        RAISING   lcx_exception.
+
+  PRIVATE SECTION.
+    CLASS-DATA:
+      gt_gena TYPE TABLE OF /iwbep/i_sbd_ga,
+      gt_prop TYPE TABLE OF /iwbep/i_sbo_pr.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_collection IMPLEMENTATION.
+
+  METHOD add_prop.
+    APPEND is_data TO gt_prop.
+  ENDMETHOD.
+
+  METHOD add_gena.
+    APPEND is_data TO gt_gena.
+  ENDMETHOD.
+
+  METHOD finalize.
+* todo
+    io_xml->table_add( it_table = gt_prop
+                       iv_name = 'NODES_PROP' ).
+    io_xml->table_add( it_table = gt_gena
+                       iv_name = 'NODES_GENA' ).
+  ENDMETHOD.
+
+  METHOD clear.
+    CLEAR: gt_prop,
+           gt_gena.
+  ENDMETHOD.
+
+ENDCLASS.
 
 CLASS lcl_object_iwpr_prop DEFINITION FINAL.
 
@@ -101,7 +145,7 @@ CLASS lcl_object_iwpr_prop IMPLEMENTATION.
 *  ls_data-description_xu  = li_prop->ms_undefined_attr-description.
 *  ls_data-prop_label_xu  = li_prop->ms_undefined_attr-prop_label.
 
-*  WRITE: / li_prop->get_maxlength( ).
+    lcl_object_iwpr_collection=>add_prop( ls_data ).
 
   ENDMETHOD.
 
@@ -118,7 +162,25 @@ CLASS lcl_object_iwpr_gena IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
 
-* todo
+* /IWBEP/CL_SBDM_GEN_ARTIFACT_PS
+* /iwbep/i_sbd_ga
+
+    DATA: ls_data TYPE /iwbep/i_sbd_ga,
+          li_gena TYPE REF TO /iwbep/if_sbdm_gen_artifact.
+
+
+    li_gena ?= ii_node.
+
+    ls_data-node_uuid    = ii_node->mv_node_guid.
+    ls_data-name         = ii_node->get_name( ).
+    ls_data-pgmid        = li_gena->get_tadir_data( )-pgmid.
+    ls_data-trobj_type   = li_gena->get_tadir_data( )-trobj_type.
+    ls_data-trobj_name   = li_gena->get_tadir_data( )-trobj_name.
+    ls_data-gen_art_type = li_gena->get_type( ).
+    ls_data-hash         = li_gena->get_hash( ).
+    ls_data-rfc_name     = li_gena->get_rfcname( ).
+
+    lcl_object_iwpr_collection=>add_gena( ls_data ).
 
   ENDMETHOD.
 
@@ -134,9 +196,7 @@ ENDCLASS.
 CLASS lcl_object_iwpr_etyp IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-
 * todo
-
   ENDMETHOD.
 
 ENDCLASS.
@@ -151,9 +211,7 @@ ENDCLASS.
 CLASS lcl_object_iwpr_serv IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-
 * todo
-
   ENDMETHOD.
 
 ENDCLASS.
@@ -168,9 +226,7 @@ ENDCLASS.
 CLASS lcl_object_iwpr_srmt IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-
 * todo
-
   ENDMETHOD.
 
 ENDCLASS.
@@ -185,9 +241,7 @@ ENDCLASS.
 CLASS lcl_object_iwpr_modl IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-
 * todo
-
   ENDMETHOD.
 
 ENDCLASS.
@@ -204,8 +258,7 @@ CLASS lcl_object_iwpr DEFINITION INHERITING FROM lcl_objects_super FINAL.
         RAISING   lcx_not_found
                   /iwbep/cx_sbcm_exception,
       walk
-        IMPORTING io_xml   TYPE REF TO lcl_xml
-                  it_nodes TYPE /iwbep/t_sbdm_nodes
+        IMPORTING it_nodes TYPE /iwbep/t_sbdm_nodes
         RAISING   /iwbep/cx_sbcm_exception.
 
 ENDCLASS.
@@ -228,12 +281,10 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
       ENDTRY.
 
       li_handler->serialize(
-        io_xml  = io_xml
         ii_node = <li_node> ).
 
       DATA(lt_nodes) = <li_node>->get_children( ).
-      walk( io_xml   = io_xml
-            it_nodes = lt_nodes ).
+      walk( lt_nodes ).
     ENDLOOP.
 
   ENDMETHOD.
@@ -263,16 +314,18 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
 
   METHOD lif_object~serialize.
 
-    DATA: lo_xml TYPE REF TO lcl_xml.
+    DATA: lo_xml     TYPE REF TO lcl_xml,
+          li_element TYPE REF TO if_ixml_element.
 
 
     TRY.
         DATA(lt_nodes) = find_project( )->get_children( ).
 * todo, project top level data?
 
+        lcl_object_iwpr_collection=>clear( ).
+        walk( lt_nodes ).
         CREATE OBJECT lo_xml.
-        walk( io_xml   = lo_xml
-              it_nodes = lt_nodes ).
+        lcl_object_iwpr_collection=>finalize( lo_xml ).
         mo_files->add_xml( lo_xml ).
       CATCH lcx_not_found.
         BREAK-POINT.
