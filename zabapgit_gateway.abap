@@ -16,6 +16,14 @@ CLASS lcl_object_iwpr_collection DEFINITION FINAL.
         IMPORTING is_data TYPE /iwbep/i_sbo_pr,
       add_gena
         IMPORTING is_data TYPE /iwbep/i_sbd_ga,
+      add_etyp
+        IMPORTING is_data TYPE /iwbep/i_sbo_et,
+      add_serv
+        IMPORTING is_data TYPE /iwbep/i_sbd_sv,
+      add_modl
+        IMPORTING is_data TYPE /iwbep/i_sbd_md,
+      add_proj
+        IMPORTING is_data TYPE /iwbep/i_sbd_pr,
       clear,
       finalize
         IMPORTING io_xml TYPE REF TO lcl_xml
@@ -24,6 +32,10 @@ CLASS lcl_object_iwpr_collection DEFINITION FINAL.
   PRIVATE SECTION.
     CLASS-DATA:
       gt_gena TYPE TABLE OF /iwbep/i_sbd_ga,
+      gt_etyp TYPE TABLE OF /iwbep/i_sbo_et,
+      gt_proj TYPE TABLE OF /iwbep/i_sbd_pr,
+      gt_serv TYPE TABLE OF /iwbep/i_sbd_sv,
+      gt_modl TYPE TABLE OF /iwbep/i_sbd_md,
       gt_prop TYPE TABLE OF /iwbep/i_sbo_pr.
 
 ENDCLASS.
@@ -34,20 +46,51 @@ CLASS lcl_object_iwpr_collection IMPLEMENTATION.
     APPEND is_data TO gt_prop.
   ENDMETHOD.
 
+  METHOD add_serv.
+    APPEND is_data TO gt_serv.
+  ENDMETHOD.
+
+  METHOD add_proj.
+    APPEND is_data TO gt_proj.
+  ENDMETHOD.
+
   METHOD add_gena.
     APPEND is_data TO gt_gena.
   ENDMETHOD.
 
+  METHOD add_etyp.
+    APPEND is_data TO gt_etyp.
+  ENDMETHOD.
+
+  METHOD add_modl.
+    APPEND is_data TO gt_modl.
+  ENDMETHOD.
+
   METHOD finalize.
-* todo
+
     io_xml->table_add( it_table = gt_prop
                        iv_name = 'NODES_PROP' ).
     io_xml->table_add( it_table = gt_gena
                        iv_name = 'NODES_GENA' ).
+    io_xml->table_add( it_table = gt_etyp
+                       iv_name = 'NODES_ETYP' ).
+    io_xml->table_add( it_table = gt_serv
+                       iv_name = 'NODES_SERV' ).
+    io_xml->table_add( it_table = gt_modl
+                       iv_name = 'NODES_MODL' ).
+    io_xml->table_add( it_table = gt_proj
+                       iv_name = 'NODES_PROJ' ).
+
+* todo, to be extra sure compare with database tables?
+
   ENDMETHOD.
 
   METHOD clear.
     CLEAR: gt_prop,
+           gt_etyp,
+           gt_modl,
+           gt_proj,
+           gt_serv,
            gt_gena.
   ENDMETHOD.
 
@@ -196,7 +239,51 @@ ENDCLASS.
 CLASS lcl_object_iwpr_etyp IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-* todo
+
+* /IWBEP/CL_SBOD_ENTITY_TYPE
+* /IWBEP/CL_SBOD_ENTITY_TYPE_PS
+* /IWBEP/I_SBO_ET
+
+    DATA: ls_data TYPE /iwbep/i_sbo_et,
+          li_etyp TYPE REF TO /iwbep/if_sbod_entity_type.
+
+
+    li_etyp ?= ii_node.
+
+    ls_data-node_uuid    = ii_node->mv_node_guid.
+    ls_data-name         = ii_node->get_name( ).
+*    ls_data-BASE_TYPE = li_etyp->GET_BASE_TYPE( ).
+    ls_data-abstract = li_etyp->get_abstract( ).
+    ls_data-is_thing_type = li_etyp->get_is_thing_type( ).
+    ls_data-is_media = li_etyp->get_is_media( ).
+    ls_data-semantic = li_etyp->get_semantics( ).
+    ls_data-fc_target_path = li_etyp->get_fc_target_path( ).
+*    ls_data-MODEL = li_etyp->( ).
+*    ls_data-REF_TYPE = li_etyp->( ).
+*    ls_data-REF_OBJNAME = li_etyp->( ).
+*    ls_data-REF_KEY = li_etyp->( ).
+    ls_data-abap_struct = li_etyp->get_abap_struct( ).
+*    ls_data-TECH_NAME = li_etyp->( ).
+*    ls_data-NAME_XU = li_etyp->( ).
+    ls_data-base_type_xu = li_etyp->is_base_type_undefined( ).
+    ls_data-abstract_xu = li_etyp->is_abstract_undefined( ).
+    ls_data-is_thing_type_xu = li_etyp->is_is_thing_type_undefined( ).
+    ls_data-is_media_xu = li_etyp->is_is_media_undefined( ).
+    ls_data-semantic_xu = li_etyp->is_semantics_undefined( ).
+    ls_data-fc_target_pathxu = li_etyp->get_fc_target_path( ).
+*    ls_data-TXTR_XU = li_etyp->( ).
+    ls_data-abap_struct_xu = li_etyp->is_abap_struct_undefined( ).
+*    ls_data-TECH_NAME_XU = li_etyp->( ).
+*    ls_data-HASH_PR = li_etyp->( ).
+*    ls_data-PLUGIN_PR = li_etyp->( ).
+*    ls_data-NODE_TYPE_PR = li_etyp->( ).
+*    ls_data-CTXT_NODE_ID_PR = li_etyp->( ).
+*    ls_data-DESCRIPTION_XU = li_etyp->( ).
+*    ls_data-ET_LABEL_XU = li_etyp->( ).
+    ls_data-is_open_type = li_etyp->is_open_type( ).
+
+    lcl_object_iwpr_collection=>add_etyp( ls_data ).
+
   ENDMETHOD.
 
 ENDCLASS.
@@ -211,7 +298,26 @@ ENDCLASS.
 CLASS lcl_object_iwpr_serv IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-* todo
+
+* /IWBEP/CL_SBDM_SERVICE
+* /IWBEP/CL_SBDM_SERVICE_PSH
+* /IWBEP/I_SBD_SV
+
+    DATA: ls_data TYPE /iwbep/i_sbd_sv,
+          li_serv TYPE REF TO /iwbep/if_sbdm_service.
+
+
+    li_serv ?= ii_node.
+
+    ls_data-node_uuid      = ii_node->mv_node_guid.
+    ls_data-technical_name = li_serv->get_technical_service_name( ).
+    ls_data-version        = li_serv->get_service_version( ).
+    ls_data-dpc            = li_serv->get_dpc( ).
+    ls_data-external_name  = li_serv->get_external_name( ).
+*    ls_data-model = li_serv->get_model( ).
+
+    lcl_object_iwpr_collection=>add_serv( ls_data ).
+
   ENDMETHOD.
 
 ENDCLASS.
@@ -226,7 +332,47 @@ ENDCLASS.
 CLASS lcl_object_iwpr_srmt IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-* todo
+
+* /IWBEP/CL_SBNOD_LMTOOLS_SRVMNT
+* /IWBEP/CL_SBLMTOOLS_SRVMNT_PS
+
+    DATA: li_srmt   TYPE REF TO /iwbep/if_sblmtools_srvmaint.
+
+* todo, this one is different?
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_proj DEFINITION FINAL.
+
+  PUBLIC SECTION.
+    INTERFACES lif_object_iwpr_handler.
+
+ENDCLASS.
+
+CLASS lcl_object_iwpr_proj IMPLEMENTATION.
+
+  METHOD lif_object_iwpr_handler~serialize.
+
+* /iwbep/if_sbdm_project
+* /IWBEP/CL_SBDM_PROJECT_PSH
+* /IWBEP/I_SBD_PR
+
+    DATA: ls_data TYPE /iwbep/i_sbd_pr,
+          li_proj TYPE REF TO /iwbep/if_sbdm_project.
+
+
+    li_proj ?= ii_node.
+
+    ls_data-node_uuid     = ii_node->mv_node_guid.
+    ls_data-plugin        = li_proj->get_gen_strategy( )-plugin.
+    ls_data-strat_name    = li_proj->get_gen_strategy( )-strat_name.
+    ls_data-strat_version = li_proj->get_gen_strategy( )-strat_version.
+    ls_data-project_type  = li_proj->get_project_type( ).
+
+    lcl_object_iwpr_collection=>add_proj( ls_data ).
+
   ENDMETHOD.
 
 ENDCLASS.
@@ -241,7 +387,30 @@ ENDCLASS.
 CLASS lcl_object_iwpr_modl IMPLEMENTATION.
 
   METHOD lif_object_iwpr_handler~serialize.
-* todo
+
+* /IWBEP/CL_SBDM_MODEL
+* /IWBEP/CL_SBDM_MODEL_PSH
+
+    DATA: ls_data   TYPE /iwbep/i_sbd_md,
+          lo_parent TYPE REF TO /iwbep/if_sbdm_node,
+          li_modl   TYPE REF TO /iwbep/if_sbdm_model.
+
+
+    li_modl ?= ii_node.
+    lo_parent = ii_node->get_parent( ).
+
+    ls_data-node_uuid = ii_node->mv_node_guid.
+    ls_data-node_uuid_pa = lo_parent->mv_node_guid.
+    ls_data-plugin_pa = lo_parent->ms_node_type-plugin.
+    ls_data-node_type_pa = lo_parent->ms_node_type-node_type.
+    ls_data-technical_name = li_modl->get_technical_model_name( ).
+    ls_data-version = li_modl->get_model_version( ).
+    ls_data-mpc = li_modl->get_mpc( ).
+*ls_data-STATE_NS
+*ls_data-VALUE_NS
+
+    lcl_object_iwpr_collection=>add_modl( ls_data ).
+
   ENDMETHOD.
 
 ENDCLASS.
@@ -278,6 +447,7 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
           CREATE OBJECT li_handler TYPE (lv_class).
         CATCH cx_sy_create_object_error.
           BREAK-POINT.
+          RETURN.
       ENDTRY.
 
       li_handler->serialize(
@@ -315,12 +485,12 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
   METHOD lif_object~serialize.
 
     DATA: lo_xml     TYPE REF TO lcl_xml,
+          lt_nodes   TYPE /iwbep/t_sbdm_nodes,
           li_element TYPE REF TO if_ixml_element.
 
 
     TRY.
-        DATA(lt_nodes) = find_project( )->get_children( ).
-* todo, project top level data?
+        APPEND find_project( ) TO lt_nodes.
 
         lcl_object_iwpr_collection=>clear( ).
         walk( lt_nodes ).
@@ -340,6 +510,7 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD lif_object~delete.
+* /iwbep/cl_sbdm=>get_manager( )->CREATE_DELETION_REQUEST( )
     _raise 'todo, delete, IWPR'.
   ENDMETHOD.
 
@@ -357,7 +528,20 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD lif_object~jump.
-    _raise 'todo, jump, IWPR'.
+
+* todo, seems like below doesnt work
+
+*    DATA: lv_project TYPE c LENGTH 30.
+*
+*
+*    lv_project = ms_item-obj_name.
+*
+*    TRY.
+*        /iwbep/cl_sbui=>create_service_builder( )->start( lv_project ).
+*      CATCH /iwbep/cx_sbcm_exception.
+*        _raise 'IWPR jump error'.
+*    ENDTRY.
+
   ENDMETHOD.
 
 ENDCLASS.
