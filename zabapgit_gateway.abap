@@ -68,6 +68,13 @@ CLASS lcl_object_iwpr_collection IMPLEMENTATION.
 
   METHOD finalize.
 
+    SORT gt_prop BY node_uuid ASCENDING.
+    SORT gt_gena BY node_uuid ASCENDING.
+    SORT gt_etyp BY node_uuid ASCENDING.
+    SORT gt_serv BY node_uuid ASCENDING.
+    SORT gt_modl BY node_uuid ASCENDING.
+    SORT gt_proj BY node_uuid ASCENDING.
+
     io_xml->table_add( it_table = gt_prop
                        iv_name = 'NODES_PROP' ).
     io_xml->table_add( it_table = gt_gena
