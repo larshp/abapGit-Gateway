@@ -399,17 +399,17 @@ CLASS lcl_object_iwpr_modl IMPLEMENTATION.
 * /IWBEP/CL_SBDM_MODEL_PSH
 
     DATA: ls_data   TYPE /iwbep/i_sbd_md,
-          lo_parent TYPE REF TO /iwbep/if_sbdm_node,
+          li_parent TYPE REF TO /iwbep/if_sbdm_node,
           li_modl   TYPE REF TO /iwbep/if_sbdm_model.
 
 
     li_modl ?= ii_node.
-    lo_parent = ii_node->get_parent( ).
+    li_parent = ii_node->get_parent( ).
 
     ls_data-node_uuid = ii_node->mv_node_guid.
-    ls_data-node_uuid_pa = lo_parent->mv_node_guid.
-    ls_data-plugin_pa = lo_parent->ms_node_type-plugin.
-    ls_data-node_type_pa = lo_parent->ms_node_type-node_type.
+    ls_data-node_uuid_pa = li_parent->mv_node_guid.
+    ls_data-plugin_pa = li_parent->ms_node_type-plugin.
+    ls_data-node_type_pa = li_parent->ms_node_type-node_type.
     ls_data-technical_name = li_modl->get_technical_model_name( ).
     ls_data-version = li_modl->get_model_version( ).
     ls_data-mpc = li_modl->get_mpc( ).
@@ -470,7 +470,7 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
 
     DATA: ls_sel_project TYPE LINE OF /iwbep/if_sbdm_manager=>ty_t_range_prjct_name,
           lt_sel_project TYPE /iwbep/if_sbdm_manager=>ty_t_range_prjct_name,
-          lo_manager     TYPE REF TO /iwbep/if_sbdm_manager,
+          li_manager     TYPE REF TO /iwbep/if_sbdm_manager,
           lt_projects    TYPE /iwbep/t_sbdm_projects.
 
 
@@ -479,8 +479,8 @@ CLASS lcl_object_iwpr IMPLEMENTATION.
     ls_sel_project-low    = ms_item-obj_name.
     INSERT ls_sel_project INTO TABLE lt_sel_project.
 
-    lo_manager = /iwbep/cl_sbdm=>get_manager( ).
-    lt_projects = lo_manager->find_projects( lt_sel_project ).
+    li_manager = /iwbep/cl_sbdm=>get_manager( ).
+    lt_projects = li_manager->find_projects( lt_sel_project ).
 
     READ TABLE lt_projects INDEX 1 INTO ri_project.
     IF sy-subrc <> 0.
